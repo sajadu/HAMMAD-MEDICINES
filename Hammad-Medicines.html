@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+<title>HAMMAD - OFFER LIST</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<!-- Google Fonts for modern look -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary-blue: #007AFF;
+        --primary-dark: #0056b3;
+        --bg-color: #f5f7fa;
+        --card-bg: #ffffff;
+        --text-main: #2d3748;
+        --text-muted: #718096;
+        --border-color: #e2e8f0;
+        --input-bg: #edf2f7;
+        --danger: #e53e3e;
+        --success: #38a169;
+        
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-full: 9999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        line-height: 1.5;
+        padding-bottom: 90px; /* Space for sticky bottom bar */
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Container */
+    .app-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
+
+    /* Header */
+    .app-header {
+        background-color: var(--card-bg);
+        padding: 24px 16px;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 24px;
+        text-align: center;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .developer-tag {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .main-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--primary-blue);
+        margin-bottom: 4px;
+        letter-spacing: -0.5px;
+    }
+
+    .sub-title {
+        font-size: 14px;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .date-info {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 12px;
+        font-size: 14px;
+        background: var(--input-bg);
+        display: inline-flex;
+        padding: 6px 16px;
+        border-radius: var(--radius-full);
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+
+    /* Admin Link */
+    .admin-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--danger);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 16px;
+        padding: 8px 16px;
+        background: #fee2e2;
+        border-radius: var(--radius-full);
+        transition: all 0.2s;
+    }
+    .admin-link:hover {
+        background: #fecaca;
+        transform: translateY(-1px);
+    }
+
+    /* Search Bar */
+    .search-container {
+        margin-bottom: 24px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 16px 20px 16px 48px;
+        font-size: 16px;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        background-color: var(--card-bg);
+        color: var(--text-main);
+        transition: all 0.2s;
+        font-family: inherit;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 18px;
+    }
+
+    /* Desktop Table Styles */
+    .desktop-table-wrapper {
+        display: none; /* Hidden by default, shown on md+ */
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    th {
+        background-color: var(--success);
+        color: white;
+        font-weight: 600;
+        padding: 16px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 16px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        font-size: 15px;
+    }
+
+    /* Product Cards (Mobile) */
+    .product-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .company-header {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 10px 16px;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 12px;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .product-card {
+        background-color: var(--card-bg);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-card.has-qty {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 1px var(--primary-blue), var(--shadow-md);
+    }
+
+    .product-card.has-qty::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: var(--primary-blue);
+    }
+
+    .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .product-info {
+        flex: 1;
+    }
+
+    .product-name {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--text-main);
+        margin-bottom: 4px;
+        line-height: 1.3;
+    }
+
+    .product-code {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-family: monospace;
+        background: var(--input-bg);
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+
+    .price-block {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 14px;
+    }
+
+    .price-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .price-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .price-val {
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .price-val.tp { color: var(--primary-dark); font-size: 16px; }
+    .price-val.offer { color: var(--success); }
+
+    /* Quantity Controls */
+    .qty-controls {
+        display: flex;
+        align-items: center;
+        background: var(--input-bg);
+        border-radius: var(--radius-full);
+        padding: 4px;
+        border: 1px solid var(--border-color);
+    }
+
+    .qty-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        background: #fff;
+        color: var(--text-main);
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.1s;
+    }
+    
+    .qty-btn:active {
+        transform: scale(0.95);
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .qty-input {
+        width: 48px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: 700;
+        border: none;
+        background: transparent;
+        color: var(--primary-blue);
+        padding: 0 4px;
+        -moz-appearance: textfield;
+    }
+    
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .qty-input:focus { outline: none; }
+
+    /* Sticky Bottom Bar */
+    .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--card-bg);
+        padding: 16px;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+        border-top: 1px solid var(--border-color);
+        z-index: 100;
+    }
+
+    .bottom-bar-inner {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .customer-input-wrapper {
+        position: relative;
+    }
+
+    .customer-input {
+        width: 100%;
+        padding: 12px 16px 12px 42px;
+        font-size: 15px;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-family: inherit;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .customer-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+    }
+
+    .customer-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .action-btn {
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 12px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        color: white;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .action-btn i { font-size: 18px; }
+    
+    .action-btn:active { transform: translateY(2px); box-shadow: none; }
+
+    .btn-order { background-color: var(--primary-blue); }
+    .btn-order:hover { background-color: var(--primary-dark); }
+    
+    .btn-whatsapp { background-color: #25D366; }
+    .btn-whatsapp:hover { background-color: #128C7E; }
+    
+    .btn-pdf-ios { background-color: #555; }
+    .btn-pdf-ios:hover { background-color: #333; }
+    
+    .btn-pdf-android { background-color: #e53e3e; }
+    .btn-pdf-android:hover { background-color: #c53030; }
+
+    /* Footer */
+    .app-footer {
+        text-align: center;
+        padding: 40px 16px 140px;
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+    .app-footer h2 { margin-bottom: 8px; color: var(--text-main); font-size: 18px; }
+    .contact-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #25D366;
+        font-weight: 700;
+        text-decoration: none;
+        margin-top: 8px;
+        background: #dcf8c6;
+        padding: 8px 16px;
+        border-radius: var(--radius-full);
+    }
+
+    /* Media Queries for Desktop layout */
+    @media (min-width: 768px) {
+        /* On larger screens, use the table layout and stack buttons better */
+        .product-list { display: none; }
+        .desktop-table-wrapper { display: block; }
+        
+        body { padding-bottom: 24px; }
+        
+        .bottom-bar {
+            position: static;
+            border-radius: var(--radius-lg);
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .action-buttons {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .action-btn {
+            flex-direction: row;
+            justify-content: center;
+            padding: 16px;
+            font-size: 14px;
+        }
+        
+        .customer-input { font-size: 16px; padding: 16px 16px 16px 48px; }
+        .app-footer { padding: 0 16px 40px; }
+    }
+    
+    /* Desktop quantity input specific styling */
+    .desktop-qty-container {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--input-bg);
+        border-radius: var(--radius-full);
+        padding: 2px;
+        border: 1px solid var(--border-color);
+        max-width: 120px;
+        margin: 0 auto;
+    }
+    
+    /* Utility class for highlighting row */
+    tr.has-qty td {
+        background-color: rgba(0, 122, 255, 0.05);
+    }
+    tr.has-qty td:first-child {
+        border-left: 4px solid var(--primary-blue);
+    }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="app-header">
+        <div class="developer-tag">Developed by Sajadullah</div>
+        <h1 class="main-title">HAMMAD MEDICINES</h1>
+        <div class="sub-title">Kashmore/Kandhkot • Contact: 03337219903</div>
+        
+        <div class="date-info">
+            <span><i class="fa-solid fa-hashtag"></i> <span id="displayListNo"></span></span>
+            <span><i class="fa-regular fa-calendar"></i> <span id="displayDate"></span></span>
+        </div>
+    </header>
+
+    <div class="search-container">
+        <i class="fa-solid fa-search search-icon"></i>
+        <input type="text" class="search-input" id="myinputs" placeholder="Search product name, code, or company...">
+    </div>
+
+    <!-- MOBILE CARD LAYOUT -->
+    <div class="product-list" id="mobileProductList">
+        <!-- JavaScript dynamically fills this from localStorage -->
+    </div>
+
+    <!-- DESKTOP TABLE LAYOUT -->
+    <div class="desktop-table-wrapper">
+        <table id="desktopTable">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Item Name</th>
+                    <th style="text-align: center; width: 150px;">Order Qty</th>
+                    <th style="text-align: center;">Offer</th>
+                    <th style="text-align: center;">Bonus</th>
+                    <th style="text-align: right;">Trade Price</th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                <!-- JavaScript dynamically fills this from localStorage -->
+            </tbody>
+        </table>
+    </div>
+    
+    <footer class="app-footer">
+        <h2>SAJADULLAH</h2>
+        <p>To buy original software, contact developer</p>
+        <a href="https://wa.me/+923029338033?text=HELLO" class="contact-link">
+            <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> 03029338033
+        </a>
+    </footer>
+</div>
+
+<!-- STICKY ACTION BAR -->
+<div class="bottom-bar">
+    <div class="bottom-bar-inner">
+        <div class="customer-input-wrapper">
+            <i class="fa-solid fa-user customer-icon"></i>
+            <input type="text" class="customer-input" placeholder="Enter Customer / Shop Name" id="cstname">
+        </div>
+        
+        <div class="action-buttons">
+            <button type="button" class="action-btn btn-order" onclick="myfun()">
+                <i class="fa-solid fa-cart-shopping"></i> Order
+            </button>
+            <button type="button" class="action-btn btn-whatsapp" onclick="mywht()">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </button>
+            <button type="button" class="action-btn btn-pdf-ios" onclick="Printf()">
+                <i class="fa-brands fa-apple"></i> iOS PDF
+            </button>
+            <button type="button" class="action-btn btn-pdf-android" id="download">
+                <i class="fa-brands fa-android"></i> Android PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+window.jsPDF = window.jspdf.jsPDF;
+
+// Global data array
+let productsData = [];
+
+// --- GOOGLE SHEETS SETTINGS ---
+// 1. Go to your Google Sheet
+// 2. Click File > Share > Publish to web
+// 3. Choose "Comma-separated values (.csv)" from the dropdown
+// 4. Copy the link and paste it inside the quotes below:
+const GOOGLE_SHEET_CSV_URL = 'PASTE_YOUR_GOOGLE_SHEET_CSV_LINK_HERE';
+
+// Base defaults
+var ITDATE = new Date().toLocaleDateString('en-GB'); 
+var LSTNO = "xxxxxx".replace(/[x]/g, function() { return (Math.random() * 9 | 0).toString(); });
+
+$(document).ready(function(){
+    document.getElementById("displayDate").textContent = ITDATE;
+    document.getElementById("displayListNo").textContent = LSTNO;
+
+    fetchProductsFromGoogleSheet();
+
+    // Responsive Search functionality targeting both Mobile Cards and Desktop Table
+    $("#myinputs").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        
+        // Desktop Search
+        $("#myTable tr.item").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+        $("#myTable tr.heading").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+        
+        // Mobile Search
+        $("#mobileProductList .product-card").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+        $("#mobileProductList .company-header").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+    });
+
+    // Handle PDF Android download
+    document.getElementById('download').addEventListener('click', function () {
+        generatePDF();
+    });
+});
+
+function fetchProductsFromGoogleSheet() {
+    const tbodyDesktop = document.getElementById('myTable');
+    const listMobile = document.getElementById('mobileProductList');
+    
+    if (GOOGLE_SHEET_CSV_URL === 'PASTE_YOUR_GOOGLE_SHEET_CSV_LINK_HERE') {
+        const msg = '<div style="padding:40px; text-align:center; color:var(--danger); font-weight:bold; background:var(--card-bg); border-radius:var(--radius-lg); margin-top:20px;">Please edit the HTML file and paste your Google Sheets CSV link into the GOOGLE_SHEET_CSV_URL variable.</div>';
+        tbodyDesktop.innerHTML = `<tr><td colspan="6">${msg}</td></tr>`;
+        listMobile.innerHTML = msg;
+        return;
+    }
+
+    tbodyDesktop.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px;"><i class="fa fa-spinner fa-spin fa-2x" style="color:var(--primary-blue)"></i><br><br>Loading products from Google Sheets...</td></tr>`;
+    listMobile.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="fa fa-spinner fa-spin fa-2x" style="color:var(--primary-blue)"></i><br><br>Loading products from Google Sheets...</div>`;
+
+    Papa.parse(GOOGLE_SHEET_CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            productsData = [];
+            results.data.forEach(row => {
+                // Find column names robustly
+                const getVal = (possibleNames) => {
+                    const key = Object.keys(row).find(k => possibleNames.includes(k.toLowerCase().trim()));
+                    return key ? row[key] : '';
+                };
+
+                const code = getVal(['code', 'item code']);
+                const name = getVal(['name', 'item name', 'product name', 'item']);
+                const company = getVal(['company', 'category', 'brand']);
+                const offer = parseFloat(getVal(['offer', 'offer %', 'discount'])) || 0;
+                const bonus = getVal(['bonus']);
+                const tp = parseFloat(getVal(['tp', 't.p', 'trade price', 'price'])) || 0;
+
+                if (name || code) {
+                    productsData.push({ code, name, company, offer, bonus, tp });
+                }
+            });
+            renderProducts();
+        },
+        error: function(err) {
+            console.error("Error parsing CSV:", err);
+            const msg = '<div style="padding:40px; text-align:center; color:var(--danger); font-weight:bold; background:var(--card-bg); border-radius:var(--radius-lg); margin-top:20px;">Failed to load data from Google Sheets. Ensure the link is correct and published to web as CSV.</div>';
+            tbodyDesktop.innerHTML = `<tr><td colspan="6">${msg}</td></tr>`;
+            listMobile.innerHTML = msg;
+        }
+    });
+}
+
+function renderProducts() {
+    productsData.sort((a, b) => {
+        const c = (a.company || '').localeCompare(b.company || '');
+        if (c !== 0) return c;
+        return (a.name || '').localeCompare(b.name || '');
+    });
+
+    const tbodyDesktop = document.getElementById('myTable');
+    const listMobile = document.getElementById('mobileProductList');
+    
+    let htmlDesktop = '';
+    let htmlMobile = '';
+    let currentCompany = null;
+
+    productsData.forEach((p, index) => {
+        const companyName = p.company || 'NO COMPANY';
+        
+        // Headers when company changes
+        if (p.company !== currentCompany) {
+            currentCompany = p.company;
+            
+            // Desktop Header
+            htmlDesktop += `<tr class="heading"><td colspan="6" align="center" style="background-color: var(--primary-blue); color: white; font-weight: bold; font-size: 16px; padding: 12px;">${companyName}</td></tr>`;
+            
+            // Mobile Header
+            htmlMobile += `<div class="company-header"><i class="fa-solid fa-folder-open"></i> ${companyName}</div>`;
+        }
+
+        const offerVal = (p.offer || 0).toFixed(2);
+        const tpVal = (p.tp || 0).toFixed(2);
+        const codeEsc = escapeHTML(p.code);
+        const nameEsc = escapeHTML(p.name);
+        const bonusEsc = escapeHTML(p.bonus) || "-";
+
+        // Desktop Row
+        htmlDesktop += `
+        <tr class="item" id="desktop_row_${index}">
+            <td style="font-family: monospace; color: var(--text-muted);">${codeEsc}</td>
+            <td style="font-weight: 600;">${nameEsc}</td>
+            <td>
+                <div class="desktop-qty-container">
+                    <button class="qty-btn" type="button" onclick="adjustQty(${index}, -1)"><i class="fa-solid fa-minus"></i></button>
+                    <input type="number" min="0" class="qty-input shared-qty-input" id="qty_desk_${index}" data-idx="${index}" value="" placeholder="0" onchange="syncQty(${index}, this.value)">
+                    <button class="qty-btn" type="button" onclick="adjustQty(${index}, 1)"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </td>
+            <td align="center" style="color: var(--success); font-weight: 600;">${offerVal}%</td>
+            <td align="center">${bonusEsc}</td>
+            <td align="right" style="font-weight: 700;">${tpVal}</td>
+        </tr>`;
+
+        // Mobile Card
+        htmlMobile += `
+        <div class="product-card" id="mobile_card_${index}">
+            <div class="card-top">
+                <div class="product-info">
+                    <div class="product-code">${codeEsc}</div>
+                    <div class="product-name">${nameEsc}</div>
+                    
+                    <div class="price-block">
+                        <div class="price-item">
+                            <span class="price-label">Trade Price</span>
+                            <span class="price-val tp">${tpVal}</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="price-label">Offer</span>
+                            <span class="price-val offer">${offerVal}%</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="price-label">Bonus</span>
+                            <span class="price-val">${bonusEsc}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="qty-controls">
+                    <button class="qty-btn" type="button" onclick="adjustQty(${index}, -1)"><i class="fa-solid fa-minus"></i></button>
+                    <input type="number" min="0" class="qty-input shared-qty-input" id="qty_mob_${index}" data-idx="${index}" value="" placeholder="0" onchange="syncQty(${index}, this.value)">
+                    <button class="qty-btn" type="button" onclick="adjustQty(${index}, 1)"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+        </div>`;
+    });
+
+    if (productsData.length === 0) {
+        const emptyMsg = '<div style="padding:40px; text-align:center; color:var(--danger); font-weight:bold; background:var(--card-bg); border-radius:var(--radius-lg); margin-top:20px;">No products found in the database.</div>';
+        htmlDesktop = `<tr><td colspan="6">${emptyMsg}</td></tr>`;
+        htmlMobile = emptyMsg;
+    }
+
+    tbodyDesktop.innerHTML = htmlDesktop;
+    listMobile.innerHTML = htmlMobile;
+}
+
+// Function to handle + / - buttons
+function adjustQty(index, change) {
+    // Read from desktop or mobile (they sync, so either is fine)
+    const inpDesk = document.getElementById(`qty_desk_${index}`);
+    const inpMob = document.getElementById(`qty_mob_${index}`);
+    
+    // Default to 0 if empty
+    let currentQty = parseInt(inpDesk ? inpDesk.value : (inpMob ? inpMob.value : 0)) || 0;
+    
+    let newQty = currentQty + change;
+    if (newQty < 0) newQty = 0;
+    
+    // Don't show "0", show empty instead for cleanliness
+    const valToSet = newQty === 0 ? '' : newQty;
+    
+    syncQty(index, valToSet);
+}
+
+// Sync values between desktop row and mobile card, and update highlights
+function syncQty(index, value) {
+    const inpDesk = document.getElementById(`qty_desk_${index}`);
+    const inpMob = document.getElementById(`qty_mob_${index}`);
+    
+    if(inpDesk) inpDesk.value = value;
+    if(inpMob) inpMob.value = value;
+    
+    const row = document.getElementById(`desktop_row_${index}`);
+    const card = document.getElementById(`mobile_card_${index}`);
+    
+    const num = parseInt(value) || 0;
+    
+    if (num > 0) {
+        if(row) row.classList.add('has-qty');
+        if(card) card.classList.add('has-qty');
+    } else {
+        if(row) row.classList.remove('has-qty');
+        if(card) card.classList.remove('has-qty');
+    }
+}
+
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.toString().replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag])
+    );
+}
+
+// ========== LOGIC SHARED FUNCTIONS ==========
+function getSelectedItems() {
+    const items = [];
+    let totalAmount = 0;
+
+    productsData.forEach((p, index) => {
+        // Just read one of the synced inputs
+        const inputEl = document.getElementById(`qty_desk_${index}`);
+        if (!inputEl) return;
+        
+        const qty = parseInt(inputEl.value) || 0;
+        if (qty > 0) {
+            const tp = p.tp || 0;
+            const discPercent = p.offer || 0;
+            
+            const gross = qty * tp;
+            const net = Math.round(gross - (gross * discPercent / 100));
+            
+            totalAmount += net;
+            
+            items.push({
+                code: p.code,
+                name: p.name,
+                qty: qty,
+                offer: discPercent,
+                bonus: p.bonus,
+                tp: tp,
+                net: net
+            });
+        }
+    });
+
+    return { items, totalAmount };
+}
+
+// ========== WHATSAPP ==========
+function mywht(){
+    var custname = document.getElementById("cstname").value.trim();
+    const { items, totalAmount } = getSelectedItems();
+    
+    if (items.length === 0) { alert("No items selected!"); return; }
+
+    var text = "CUSTOMER NAME : " + custname + "%0a";
+    text += "LIST NO : " + LSTNO + "%0a";
+    text += "DATE : " + ITDATE + "%0a";
+    text += "===========================================%0a";
+    text += "CODE  *|* ITEM NAME *|* QTY *|* OFFER *|* BONUS *|* T.P *|* NET%0a";
+    text += "===========================================%0a";
+
+    items.forEach(item => {
+        text += item.code + " *|* " + item.name + " *|* " + item.qty + " *|* " + item.offer + "% *|* " + item.bonus + " *|* " + item.tp + " *|* " + item.net + "%0a";
+    });
+
+    text += "===========================================%0a";
+    text += "TOTAL ITEMS : " + items.length + "%0a";
+    text += "TOTAL AMOUNT : " + totalAmount + "%0a";
+
+    var url = "https://wa.me/?text=" + text;
+    window.open(url, '_blank');
+}
+
+// ========== ORDER PRINT WINDOW ==========
+function myfun(){
+    var custname = document.getElementById("cstname").value.trim();
+    const { items, totalAmount } = getSelectedItems();
+    
+    if (items.length === 0) { alert("No items selected!"); return; }
+
+    var myWindow = window.open("", "Print Window");
+    var html = '<html><head><title>Print Window</title>';
+    html += '<style>';
+    html += 'body{font-family: Arial, sans-serif; font-size:14px; padding:20px;} table{width:100%; border-collapse:collapse;} th,td{border:1px solid #ccc; padding:8px;} th {background:#007AFF; color:white; text-align:left;}';
+    html += '</style>';
+    html += '</head><body>';
+    
+    html += '<h2>HAMMAD MEDICINES</h2>';
+    html += '<p><b>CUSTOMER NAME :</b> ' + custname + '</p>';
+    html += '<p><b>LIST NO :</b> ' + LSTNO + '&nbsp;&nbsp;&nbsp; <b>DATE :</b> ' + ITDATE + '</p>';
+    
+    html += '<table>';
+    html += '<tr><th>CODE</th><th>ITEM NAME</th><th style="text-align:center;">QTY</th><th style="text-align:center;">OFFER</th><th style="text-align:center;">BONUS</th><th style="text-align:right;">T.P</th><th style="text-align:right;">NET</th></tr>';
+
+    items.forEach(item => {
+        html += '<tr>';
+        html += '<td>' + escapeHTML(item.code) + '</td>';
+        html += '<td>' + escapeHTML(item.name) + '</td>';
+        html += '<td align="center"><strong>' + item.qty + '</strong></td>';
+        html += '<td align="center">' + item.offer + '%</td>';
+        html += '<td align="center">' + escapeHTML(item.bonus || '-') + '</td>';
+        html += '<td align="right">' + item.tp + '</td>';
+        html += '<td align="right"><strong>' + item.net + '</strong></td>';
+        html += '</tr>';
+    });
+
+    html += '<tr><td colspan="5"></td><td align="right"><strong>TOTAL ITEMS : ' + items.length + '</strong></td><td align="right"><strong>' + totalAmount + '</strong></td></tr>';
+    html += '</table>';
+    html += '</body></html>';
+
+    myWindow.document.write(html);
+    myWindow.document.close();
+    
+    // Optional: trigger print immediately
+    setTimeout(() => { myWindow.print(); }, 500);
+}
+
+// ========== PDF iPHONE (HTML PRINT) ==========
+function Printf() {
+    myfun(); 
+}
+
+// ========== PDF GENERATION (jsPDF) ==========
+function createRows() {
+    const { items, totalAmount } = getSelectedItems();
+    const rows = [];
+    items.forEach(item => {
+        rows.push([
+            item.code, 
+            item.name, 
+            item.qty.toString(), 
+            item.offer + "%", 
+            item.tp.toString(), 
+            item.net.toString()
+        ]);
+    });
+    var totitem = "TOTAL ITEMS :" + items.length;
+    rows.push([' ', totitem, '', '', 'TOTAL AMOUNT', totalAmount.toString()]);
+    return rows;
+}
+
+function generatePDF() {
+    const { items } = getSelectedItems();
+    if (items.length === 0) { alert("No items selected!"); return; }
+
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const margin = { left: 15, right: 15, top: 45, bottom: 10 };
+    const sections = 1;
+    const spacing = 5;
+    const printWidht = doc.internal.pageSize.width - (margin.left + margin.right);
+    const sectionWidth = (printWidht - (sections - 1) * spacing) / sections;
+    
+    var custname = document.getElementById("cstname").value;
+    var title = "HAMMAD MEDICINES";
+    
+    doc.addPage();
+    
+    function addHeader() {
+        doc.setFontSize(14);
+        doc.text(" ", 20, 10);
+        doc.text(title, 80, 10);
+        doc.setFontSize(10);
+        doc.text("CUSTOMER NAME :", 20, 20);
+        doc.text(custname, 80, 20);
+        doc.text("LIST NO :", 20, 30);
+        doc.text(LSTNO, 80, 30);
+        doc.text("DATE :", 20, 40);
+        doc.text(ITDATE, 80, 40);
+    }
+    
+    addHeader();
+
+    doc.autoTable({
+        head: [['CODE', 'ITEM NAME', 'ORDER', 'OFFER', 'T.P', 'TOTAL AMOUNT']],
+        body: createRows(),
+        tableWidth: sectionWidth,
+        margin,
+        rowPageBreak: 'avoid', 
+        didDrawPage({ table, pageNumber }) {
+            const docPage = doc.internal.getNumberOfPages();
+            const nextShouldWrap = pageNumber % sections;
+            if (nextShouldWrap) {
+                doc.setPage(docPage - 1);
+                table.settings.margin.left += sectionWidth + spacing;
+            } else {
+                addHeader();
+                table.settings.margin.left = margin.left;
+            }
+        } 
+    });
+    
+    doc.setPage(doc.internal.getNumberOfPages());
+    doc.deletePage(1);
+    doc.save('PDF' + LSTNO + '.pdf');
+}
+</script>
+</body>
+</html>
